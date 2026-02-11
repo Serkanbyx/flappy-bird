@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from "react";
 import { useGameStore } from "../store/useGameStore";
+import { soundEngine } from "../engine/sound";
 
 /* ========================================
    useInputHandler Hook
@@ -23,6 +24,7 @@ export const useInputHandler = (): void => {
         startGame();
         break;
       case "playing":
+        soundEngine.play("flap");
         flap();
         break;
       case "gameOver":

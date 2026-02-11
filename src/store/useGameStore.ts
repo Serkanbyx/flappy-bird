@@ -73,6 +73,21 @@ const createPipePair = (x: number): PipePair => ({
 });
 
 /* ========================================
+   Dynamic Speed Calculation
+   ======================================== */
+
+/**
+ * Calculate current pipe speed based on score.
+ * Every `PIPE.scoreInterval` points, speed increases by `PIPE.speedIncrement`.
+ * The increase is subtle per tier but compounds over time.
+ */
+const getCurrentSpeed = (score: number): number => {
+  const tiers = Math.floor(score / PIPE.scoreInterval);
+  const dynamicSpeed = PIPE.speed + tiers * PIPE.speedIncrement;
+  return Math.min(dynamicSpeed, PIPE.maxSpeed);
+};
+
+/* ========================================
    Collision Detection
    ======================================== */
 
@@ -185,9 +200,10 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       rotation: newRotation,
     };
 
-    /* Move pipes and check scoring */
+    /* Move pipes and check scoring — speed scales with score */
     let newScore = state.score;
-    const pipeMove = PIPE.speed * dt;
+    const currentSpeed = getCurrentSpeed(state.score);
+    const pipeMove = currentSpeed * dt;
     let newPipes = state.pipes
       .map((pipe) => {
         const newX = pipe.x - pipeMove;
@@ -209,9 +225,9 @@ export const useGameStore = create<GameState & GameActions>((set, get) => ({
       newPipes.push(createPipePair(lastPipe.x + PIPE.spacing));
     }
 
-    /* Scroll ground */
+    /* Scroll ground — synced with dynamic pipe speed */
     const newGroundOffset =
-      (state.groundOffset + GROUND.speed * dt) % CANVAS_HEIGHT;
+      (state.groundOffset + currentSpeed * dt) % CANVAS_HEIGHT;
 
     const newState = {
       bird: newBird,

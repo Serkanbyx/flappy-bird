@@ -37,8 +37,14 @@ export const PIPE = {
   width: 60,
   /** Vertical gap between top and bottom pipes */
   gap: 150,
-  /** Horizontal speed (pixels per frame) */
+  /** Base horizontal speed (pixels per frame) */
   speed: 2.5,
+  /** Speed increment applied every SCORE_INTERVAL points (subtle ramp-up) */
+  speedIncrement: 0.12,
+  /** Score interval at which speed increases */
+  scoreInterval: 10,
+  /** Maximum pipe speed cap to keep the game playable */
+  maxSpeed: 5.5,
   /** Distance between consecutive pipe pairs */
   spacing: 220,
   /** Minimum top pipe height */

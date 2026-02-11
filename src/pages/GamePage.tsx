@@ -3,8 +3,10 @@ import GameCanvas from "../components/GameCanvas";
 import StartScreen from "../components/StartScreen";
 import GameOverScreen from "../components/GameOverScreen";
 import { useInputHandler } from "../hooks/useInputHandler";
+import { useSoundEffects } from "../hooks/useSoundEffects";
 import { useGameStore } from "../store/useGameStore";
 import { useResponsiveCanvas } from "../hooks/useResponsiveCanvas";
+import { soundEngine } from "../engine/sound";
 
 /* ========================================
    GamePage
@@ -26,6 +28,9 @@ const GamePage = () => {
   /* Bind keyboard/touch input handlers */
   useInputHandler();
 
+  /* Reactive sound effects (score, hit, swoosh) */
+  useSoundEffects();
+
   const status = useGameStore((s) => s.status);
   const flap = useGameStore((s) => s.flap);
   const startGame = useGameStore((s) => s.startGame);
@@ -38,6 +43,7 @@ const GamePage = () => {
         startGame();
         break;
       case "playing":
+        soundEngine.play("flap");
         flap();
         break;
       case "gameOver":
