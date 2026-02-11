@@ -67,20 +67,44 @@ const GamePage = () => {
 
   return (
     <div ref={containerRef} className="game-container bg-black">
-      <div
-        className="relative overflow-hidden rounded-lg shadow-2xl cursor-pointer"
-        style={{ width: displayWidth, height: displayHeight }}
-        onClick={handleClick}
-        onTouchStart={handleTouchStart}
-        role="application"
-        aria-label="Flappy Bird Game"
-      >
-        {/* Canvas game rendering */}
-        <GameCanvas />
+      <div className="flex flex-col items-center">
+        <div
+          className="relative overflow-hidden rounded-lg shadow-2xl cursor-pointer"
+          style={{ width: displayWidth, height: displayHeight }}
+          onClick={handleClick}
+          onTouchStart={handleTouchStart}
+          role="application"
+          aria-label="Flappy Bird Game"
+        >
+          {/* Canvas game rendering */}
+          <GameCanvas />
 
-        {/* UI Overlays */}
-        <StartScreen />
-        <GameOverScreen />
+          {/* UI Overlays */}
+          <StartScreen />
+          <GameOverScreen />
+        </div>
+
+        {/* Footer */}
+        <footer className="sign mt-3 text-center text-[10px] text-gray-500 tracking-wider">
+          Created by{" "}
+          <a
+            href="https://serkanbayraktar.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-emerald-400 hover:text-emerald-300 transition-colors"
+          >
+            Serkanby
+          </a>{" "}
+          |{" "}
+          <a
+            href="https://github.com/Serkanbyx"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-emerald-400 hover:text-emerald-300 transition-colors"
+          >
+            Github
+          </a>
+        </footer>
       </div>
     </div>
   );
