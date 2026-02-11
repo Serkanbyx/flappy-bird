@@ -1,15 +1,28 @@
+import { useRef, useCallback } from "react";
 import GameCanvas from "../components/GameCanvas";
 import StartScreen from "../components/StartScreen";
 import GameOverScreen from "../components/GameOverScreen";
 import { useInputHandler } from "../hooks/useInputHandler";
 import { useGameStore } from "../store/useGameStore";
+import { useResponsiveCanvas } from "../hooks/useResponsiveCanvas";
 
 /* ========================================
    GamePage
    Main game page that composes canvas and UI overlays.
+   The container dynamically scales to fill the viewport
+   while maintaining the native 2:3 aspect ratio.
    ======================================== */
 
 const GamePage = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { displayWidth, displayHeight } = useResponsiveCanvas(containerRef);
+
+  /**
+   * Track whether the last interaction came from a touch event.
+   * This prevents the subsequent synthetic click from firing a second action.
+   */
+  const isTouchRef = useRef(false);
+
   /* Bind keyboard/touch input handlers */
   useInputHandler();
 
@@ -18,8 +31,8 @@ const GamePage = () => {
   const startGame = useGameStore((s) => s.startGame);
   const reset = useGameStore((s) => s.reset);
 
-  /** Handle click/touch on game container */
-  const handleInteraction = () => {
+  /** Dispatch the correct action based on current game status */
+  const handleInteraction = useCallback(() => {
     switch (status) {
       case "idle":
         startGame();
@@ -31,17 +44,34 @@ const GamePage = () => {
         reset();
         break;
     }
-  };
+  }, [status, startGame, flap, reset]);
+
+  /** Handle touch: act immediately, flag to skip the subsequent click */
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+      isTouchRef.current = true;
+      handleInteraction();
+    },
+    [handleInteraction]
+  );
+
+  /** Handle click: skip if this click was synthesized from a touch */
+  const handleClick = useCallback(() => {
+    if (isTouchRef.current) {
+      isTouchRef.current = false;
+      return;
+    }
+    handleInteraction();
+  }, [handleInteraction]);
 
   return (
-    <div className="game-container bg-black">
+    <div ref={containerRef} className="game-container bg-black">
       <div
-        className="relative"
-        onClick={handleInteraction}
-        onTouchStart={(e) => {
-          e.preventDefault();
-          handleInteraction();
-        }}
+        className="relative overflow-hidden rounded-lg shadow-2xl cursor-pointer"
+        style={{ width: displayWidth, height: displayHeight }}
+        onClick={handleClick}
+        onTouchStart={handleTouchStart}
         role="application"
         aria-label="Flappy Bird Game"
       >

@@ -2,14 +2,14 @@ import { useGameStore } from "../store/useGameStore";
 
 /* ========================================
    GameOverScreen Component
-   Overlay shown when the game ends.
+   Visual overlay shown when the game ends.
+   All interactions are handled by the parent GamePage.
    ======================================== */
 
 const GameOverScreen = () => {
   const status = useGameStore((s) => s.status);
   const score = useGameStore((s) => s.score);
   const bestScore = useGameStore((s) => s.bestScore);
-  const reset = useGameStore((s) => s.reset);
 
   if (status !== "gameOver") return null;
 
@@ -17,13 +17,7 @@ const GameOverScreen = () => {
 
   return (
     <div
-      className="absolute inset-0 flex flex-col items-center justify-center z-10 cursor-pointer"
-      onClick={reset}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") reset();
-      }}
+      className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none"
       aria-label="Restart game"
     >
       {/* Dimmed backdrop */}

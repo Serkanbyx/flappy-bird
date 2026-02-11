@@ -19,6 +19,8 @@ import {
 /* ========================================
    GameCanvas Component
    Core canvas element that renders the game.
+   Supports responsive sizing with DPR-aware rendering
+   for crisp output on all screen densities.
    ======================================== */
 
 const GameCanvas = () => {
@@ -32,6 +34,35 @@ const GameCanvas = () => {
   const groundOffset = useGameStore((s) => s.groundOffset);
   const score = useGameStore((s) => s.score);
   const tick = useGameStore((s) => s.tick);
+
+  /**
+   * Synchronize canvas pixel buffer with its CSS display size.
+   * Multiplies by devicePixelRatio so rendering stays crisp
+   * on high-DPI / Retina displays.
+   */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const syncBufferSize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const bufferWidth = Math.round(rect.width * dpr);
+      const bufferHeight = Math.round(rect.height * dpr);
+
+      /* Only update when dimensions actually change to avoid unnecessary context resets */
+      if (canvas.width !== bufferWidth || canvas.height !== bufferHeight) {
+        canvas.width = bufferWidth;
+        canvas.height = bufferHeight;
+      }
+    };
+
+    syncBufferSize();
+    const observer = new ResizeObserver(syncBufferSize);
+    observer.observe(canvas);
+
+    return () => observer.disconnect();
+  }, []);
 
   /** Main render function - draws everything to canvas */
   const render = useCallback(
@@ -48,6 +79,13 @@ const GameCanvas = () => {
       /* Convert accumulated ms to a 60fps-equivalent frame count.
          This keeps wing flap speed consistent across all refresh rates. */
       const normalizedFrame = animTimeRef.current / TARGET_FRAME_MS;
+
+      /* Scale rendering context from game coordinates (400×600)
+         to the actual pixel buffer size. This single transform handles
+         both responsive scaling and DPR correction seamlessly. */
+      const scaleX = canvas.width / CANVAS_WIDTH;
+      const scaleY = canvas.height / CANVAS_HEIGHT;
+      ctx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
 
       clearCanvas(ctx);
       drawBackground(ctx);
@@ -105,10 +143,7 @@ const GameCanvas = () => {
   return (
     <canvas
       ref={canvasRef}
-      width={CANVAS_WIDTH}
-      height={CANVAS_HEIGHT}
-      className="block max-h-full max-w-full rounded-lg shadow-2xl"
-      style={{ imageRendering: "pixelated" }}
+      className="block w-full h-full"
     />
   );
 };

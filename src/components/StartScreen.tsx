@@ -2,25 +2,19 @@ import { useGameStore } from "../store/useGameStore";
 
 /* ========================================
    StartScreen Component
-   Overlay shown when game is in idle state.
+   Visual overlay shown when game is in idle state.
+   All interactions are handled by the parent GamePage.
    ======================================== */
 
 const StartScreen = () => {
   const status = useGameStore((s) => s.status);
   const bestScore = useGameStore((s) => s.bestScore);
-  const startGame = useGameStore((s) => s.startGame);
 
   if (status !== "idle") return null;
 
   return (
     <div
-      className="absolute inset-0 flex flex-col items-center justify-center z-10 cursor-pointer"
-      onClick={startGame}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") startGame();
-      }}
+      className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none"
       aria-label="Start game"
     >
       {/* Dimmed backdrop */}
